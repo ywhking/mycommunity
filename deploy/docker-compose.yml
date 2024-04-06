@@ -1,0 +1,79 @@
+version: '3.8'
+services:
+  my-nginx:
+    image: nginx
+    container_name: my-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./apps/client:/usr/share/nginx/html
+      - ./nginx/certs/service.kuduoduo.net.crt.pem:/etc/nginx/mycommunity.crt
+      - ./nginx/certs/service.kuduoduo.net.key.pem:/etc/nginx/mycommunity.key
+      - ./nginx/conf/mycommunity.conf:/etc/nginx/conf.d/mycommunity.conf
+    networks:
+      mycommunity:
+        ipv4_address: 172.30.0.2
+    depends_on:
+      - my-v2ray
+      - apiserver
+
+  my-mysql:
+    image: mysql
+    container_name: my-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123.456
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123.456
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      mycommunity:
+        ipv4_address: 172.30.0.3
+
+
+  my-v2ray:
+    image: v2fly/v2fly-core
+    container_name: my-v2ray
+    volumes:
+      - ./v2ray/api-config.json:/etc/v2ray/config.json
+    ports:
+      - "10086:10086"
+      - "127.0.0.1:10085:10085"
+    networks:
+      mycommunity:
+        ipv4_address: 172.30.0.4
+    command: run -c /etc/v2ray/config.json
+
+  apiserver:
+    build:
+      context: ./apps/apiserver
+    
+    image: mycommunity/apiserver
+    container_name: apiserver
+    environment:
+      - DB_HOST=172.30.0.3
+      - DB_PORT=3306
+      - DB_NAME=mycommunity
+      - DB_USER=admin
+      - DB_PASSWORD=123.456
+      - AUTH_HOST=auth.kuduoduo.net
+      - AUTH_PORT=8443
+      - AUTH_REALM=my-community
+      - ORIGIN_URL=https://service.kuduoduo.net,https://45.58.53.82
+    ports:
+      - "8080:8080"
+    networks:
+      mycommunity:
+        ipv4_address: 172.30.0.5
+    depends_on:
+      - my-mysql
+
+networks:
+  mycommunity:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
+

@@ -1,0 +1,71 @@
+package com.example.mycommunity.controller;
+
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.Assert;
+import com.jayway.jsonpath.JsonPath;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class UserControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private static Long id = 0L;
+    private static String name = "Alice";
+    private static String phoneNumber = "13600010009";
+    private static String email = "alice@example.com";
+    private static String password = "123.456";
+
+    @Test
+    @Order(1)
+    public void testAddUser() throws Exception {
+        
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/user")
+            .param("name", this.name)
+            .param("email", this.email)
+            .param("phone_number", this.phoneNumber)
+            .param("password", this.password)
+        ).andReturn();
+        String jsonResult = mvcResult.getResponse().getContentAsString();
+        System.out.println("JSON Response: " + jsonResult);
+        // 使用JsonPath解析JSON响应
+        Long id = JsonPath.parse(jsonResult).read("$.data.id",Long.class);
+        //Long id = JsonPath.read(jsonResult, "$.id",Long.class);
+        String name = JsonPath.read(jsonResult, "$.data.name");
+        String email = JsonPath.read(jsonResult, "$.data.email");
+        String phoneNumber = JsonPath.read(jsonResult, "$.data.phoneNumber");
+        String password = JsonPath.read(jsonResult, "$.data.password");
+        Assert.isTrue(null != id , "id is null!");
+        System.out.println("The user id is:" + id);
+        Assert.isTrue(this.name.equals(name) , "name not equal!");
+        Assert.isTrue(this.email.equals(email) , "email not equal!");
+        Assert.isTrue(this.phoneNumber.equals(phoneNumber) , "phone number not equal!");
+        Assert.isTrue(this.password.equals(password) , "password not equal!");
+        this.id = id;
+    }
+
+    @Test
+    @Order(2)
+    public void testGetUser() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/user").param("id", Long.toString(this.id)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(this.id))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].name").value(this.name))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].email").value(this.email))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].phoneNumber").value(this.phoneNumber))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].password").value(this.password));
+    }
+    
+}

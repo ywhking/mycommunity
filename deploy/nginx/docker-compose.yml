@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  mynginx:
+    image: nginx
+    container_name: my-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ../apps/admin:/usr/share/nginx/html/admin
+      - ../apps/client:/usr/share/nginx/html/client
+      - ./certs/mycommunity.crt:/etc/nginx/mycommunity.crt
+      - ./certs/mycommunity.key:/etc/nginx/mycommunity.key
+      - ./conf/mycommunity.conf:/etc/nginx/conf.d/mycommunity.conf
+
+

@@ -1,0 +1,5 @@
+{
+    "authority": "https://auth.kuduoduo.net:8443/realms/my-community",
+    "client_id": "my-community",
+    "redirect_uri": "https://service.kuduoduo.net"
+}

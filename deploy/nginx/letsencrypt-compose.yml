@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  mynginx:
+    image: nginx
+    container_name: my-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs/letsencrypt-crt.pem:/etc/nginx/letsencrypt-crt.pem
+      - ./certs/letsencrypt-key.pem:/etc/nginx/letsencrypt-key.pem
+      - ./conf/letsencrypt.conf:/etc/nginx/conf.d/letsencrypt.conf
+
+
+

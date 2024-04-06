@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mycommunity.mapper.ApplicationMapper">
+  <!-- resultMap元素用于配置结果映射规则 -->
+  <resultMap id="appMap" type="com.example.mycommunity.model.Application">
+    <id column="id" property="id" />
+    <result column="description" property="desc" />
+    <result column="url_addr" property="urlAddr" />
+  </resultMap>
+
+  <!-- insert元素用于配置插入语句 -->
+    <insert id="addApp" useGeneratedKeys = "true" keyProperty = "id" >
+    INSERT INTO application(name, description, url_addr) VALUES(#{name}, #{desc}, #{urlAddr})
+  </insert>
+
+  <!-- update元素用于配置更新语句 -->
+  <update id="updateApp">
+    UPDATE application SET name = #{name}, description = #{desc}, url_addr = #{urlAddr} where id = #{id}
+  </update>
+
+  <!-- select元素用于配置查询语句 -->
+  <select id="findAll" resultMap="appMap">
+    SELECT * FROM application
+  </select>
+
+  <select id="findById" resultMap="appMap">
+    SELECT * FROM application WHERE id = #{id}
+  </select>
+
+  <!-- delete元素用于配置删除语句 -->
+  <delete id="deleteById">
+    DELETE FROM application WHERE id = #{id}
+  </delete>
+</mapper>

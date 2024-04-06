@@ -1,0 +1,5 @@
+{
+    "authority": "https://auth.cool2much.net:8443/realms/my-community",
+    "client_id": "my-community",
+    "redirect_uri": "https://192.168.1.5:5173"
+}

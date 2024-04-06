@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  my-keycloak:
+    build: .
+    image: my-keycloak
+    container_name: my-keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./certs:/opt/keycloak/certs
+    command: >
+      start
+      --hostname auth.kuduoduo.net 
+      --db mysql 
+      --db-url jdbc:mysql://45.58.53.82:3306/keycloak 
+      --db-username admin 
+      --db-password 123.456 
+      --https-certificate-file=/opt/keycloak/certs/kuduoduo.crt.pem 
+      --https-certificate-key-file=/opt/keycloak/certs/kuduoduo.key.pem
+

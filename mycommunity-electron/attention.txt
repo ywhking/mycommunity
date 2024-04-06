@@ -1,0 +1,4 @@
+1、electron加载https网页需要验证证书的合法性，开发阶段可以忽略掉
+   app.commandLine.appendSwitch('ignore-certificate-errors');
+2、前端应用需要采用https
+3、keycloak需要部署https， 采用product模式

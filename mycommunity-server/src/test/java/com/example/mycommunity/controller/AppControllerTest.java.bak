@@ -1,0 +1,76 @@
+package com.example.mycommunity.controller;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import com.jayway.jsonpath.JsonPath;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class AppControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private static Long id = 0L;
+    private static String name = "Alice";
+    private static String address = "http://localhost:8080";
+    private static String name1 = "Alice1";
+    private static String address1 = "http://localhost:8090";
+
+    @Test
+    @Order(1)
+    public void testAddApp() throws Exception {
+        
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/app")
+            .param("name", this.name)
+            .param("address", this.address)
+        ).andReturn();
+        String jsonResult = mvcResult.getResponse().getContentAsString();
+        System.out.println("JSON Response: " + jsonResult);
+        // 使用JsonPath解析JSON响应
+        Long id = JsonPath.parse(jsonResult).read("$.data.id",Long.class);
+        String name = JsonPath.read(jsonResult, "$.data.name");
+        String address = JsonPath.read(jsonResult, "$.data.address");
+        assertNotNull(id, "ID should not be null!");
+        assertEquals(this.name, name, "name should equal!");
+        assertEquals(this.address, address, "address should equal!");
+        this.id = id;
+    }
+
+    @Test
+    @Order(2)
+    public void testUpdateApp() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/app")
+            .param("id", Long.toString(this.id))
+            .param("name", this.name1)
+            .param("address", this.address1))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(this.id))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(this.name1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data.address").value(this.address1));
+    }
+
+    @Test
+    @Order(3)
+    public void testGetApp() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/app").param("id", Long.toString(this.id)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(this.id))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].name").value(this.name1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].address").value(this.address1));
+    }
+    
+}

@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+### MySQL Container
+  mycommunity:
+    build:
+      context: /home/mycommunity/mycommunity-client
+    image: mycommunity:latest
+    container_name: mycommunity
+    ports:
+      - "443:443"
+
